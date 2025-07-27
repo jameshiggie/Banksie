@@ -79,6 +79,7 @@ app.add_middleware(
 # Configuration
 JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-key")
 DATABASE_PATH = os.getenv("DATABASE_PATH", "./database.sqlite")
+FORCE_DB_REFRESH = os.getenv("FORCE_DB_REFRESH", "false").lower() == "true"
 
 # Security
 security = HTTPBearer()
@@ -148,7 +149,13 @@ def init_database():
     
     # Insert sample transaction data if empty
     cursor.execute("SELECT COUNT(*) FROM transactions")
-    if cursor.fetchone()[0] == 0:
+    transaction_count = cursor.fetchone()[0]
+    
+    if transaction_count == 0 or FORCE_DB_REFRESH:
+        if FORCE_DB_REFRESH and transaction_count > 0:
+            logger.info("🔄 FORCE_DB_REFRESH=true - Clearing existing transaction data")
+            cursor.execute("DELETE FROM transactions")
+        
         import random
         from datetime import datetime, timedelta
         
@@ -216,11 +223,12 @@ def init_database():
         ))
         transaction_id += 1
         
-        # Generate transactions over 12 months
-        start_date = datetime(2023, 1, 2)
+        # Generate transactions for 2024 and 2025
+        start_date = datetime(2024, 1, 2)
         current_date = start_date
+        total_days = (datetime.now() - start_date).days
         
-        for day in range(365):  # One year of transactions
+        for day in range(total_days):
             current_date = start_date + timedelta(days=day)
             
             # Generate 2-5 transactions per day
