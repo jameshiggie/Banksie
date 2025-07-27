@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  # Production Python Backend
+  ai-chatbot-python:
+    build:
+      context: ./python-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - DATABASE_PATH=./database.sqlite
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DEBUG=False
+      - HOST=0.0.0.0
+      - PORT=8000
+      - FORCE_DB_REFRESH=${FORCE_DB_REFRESH:-false}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    profiles:
+      - production
+
+  # Development Python Backend with Virtual Environment and Debug Support
+  ai-chatbot-python-dev:
+    build:
+      context: ./python-backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"  # FastAPI server
+      - "5678:5678"  # Debug port for VS Code
+    environment:
+      - JWT_SECRET=dev-secret-key
+      - DATABASE_PATH=./database.sqlite
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - DEBUG=True
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG_PORT=5678
+      - DEBUG_WAIT=False  # Set to True if you want to wait for debugger
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - FORCE_DB_REFRESH=${FORCE_DB_REFRESH:-false}
+    volumes:
+      - ./python-backend:/app
+      - ./data:/app/data
+      - python-venv:/opt/venv  # Persist virtual environment
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    profiles:
+      - dev
+      - development
+
+  # React Frontend for Production
+  ai-chatbot-frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - ai-chatbot-python
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    restart: unless-stopped
+    profiles:
+      - production
+
+  # React Frontend for Development
+  ai-chatbot-frontend-dev:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://ai-chatbot-python-dev:8000
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - ai-chatbot-python-dev
+    restart: unless-stopped
+    profiles:
+      - dev
+      - development
+
+  # Database Management Tool (Optional)
+  db-admin:
+    image: adminer:4.8.1
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=ai-chatbot-python-dev
+    profiles:
+      - dev
+      - development
+
+# Named volumes
+volumes:
+  python-venv:
+    driver: local
+
+# Networks
+networks:
+  default:
+    name: ai-chatbot-network 

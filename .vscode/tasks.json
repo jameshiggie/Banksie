@@ -1,0 +1,226 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Install Python Dependencies",
+      "type": "shell",
+      "command": "pip",
+      "args": ["install", "-r", "requirements.txt"],
+      "options": {
+        "cwd": "${workspaceFolder}/python-backend"
+      },
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install Node Dependencies",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "install-all"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Python Backend (Local)",
+      "type": "shell",
+      "command": "python",
+      "args": ["start.py"],
+      "options": {
+        "cwd": "${workspaceFolder}/python-backend",
+        "env": {
+          "DEBUG": "True",
+          "PYTHONPATH": "${workspaceFolder}/python-backend"
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Python Backend Docker Dev",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": [
+        "-f", "docker-compose.python.yml",
+        "--profile", "dev",
+        "up", "--build", "-d", "ai-chatbot-python-dev"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Python Backend Docker Dev (Wait)",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": [
+        "-f", "docker-compose.python.yml",
+        "--profile", "dev",
+        "up", "--build", "-d"
+      ],
+      "options": {
+        "env": {
+          "DEBUG_WAIT": "True"
+        }
+      },
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start React Frontend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["start"],
+      "options": {
+        "cwd": "${workspaceFolder}/client",
+        "env": {
+          "BROWSER": "none",
+          "REACT_APP_API_URL": "http://localhost:8000"
+        }
+      },
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Full Stack (Docker Dev)",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": [
+        "-f", "docker-compose.python.yml",
+        "--profile", "dev",
+        "up", "--build"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Stop Docker Services",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": [
+        "-f", "docker-compose.python.yml",
+        "down"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "View Docker Logs",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": [
+        "-f", "docker-compose.python.yml",
+        "logs", "-f", "ai-chatbot-python-dev"
+      ],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build Production Images",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": [
+        "-f", "docker-compose.python.yml",
+        "--profile", "production",
+        "build"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Tests (Python)",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "pytest", "-v"],
+      "options": {
+        "cwd": "${workspaceFolder}/python-backend"
+      },
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Format Python Code",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "black", "."],
+      "options": {
+        "cwd": "${workspaceFolder}/python-backend"
+      },
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+} 
