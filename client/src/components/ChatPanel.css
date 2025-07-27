@@ -371,3 +371,212 @@
     font-size: 11px;
   }
 } 
+
+/* Markdown Styles */
+.message-text h1,
+.message-text h2,
+.message-text h3,
+.message-text h4,
+.message-text h5,
+.message-text h6 {
+  margin: 0.5em 0 0.3em 0;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.message-text h1 {
+  font-size: 1.5em;
+  border-bottom: 2px solid #e1e5e9;
+  padding-bottom: 0.3em;
+}
+
+.message-text h2 {
+  font-size: 1.3em;
+  border-bottom: 1px solid #e1e5e9;
+  padding-bottom: 0.3em;
+}
+
+.message-text h3 {
+  font-size: 1.1em;
+}
+
+.message-text h4,
+.message-text h5,
+.message-text h6 {
+  font-size: 1em;
+}
+
+.message-text p {
+  margin: 0.5em 0;
+  line-height: 1.6;
+}
+
+.message-text strong {
+  font-weight: 600;
+}
+
+.message-text em {
+  font-style: italic;
+}
+
+.message-text ul,
+.message-text ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.message-text li {
+  margin: 0.25em 0;
+  line-height: 1.5;
+}
+
+.message-text ul li {
+  list-style-type: disc;
+}
+
+.message-text ol li {
+  list-style-type: decimal;
+}
+
+/* Code styling */
+.message-text .inline-code {
+  background-color: rgba(175, 184, 193, 0.2);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.85em;
+  color: #e83e8c;
+}
+
+.message-text .code-block {
+  margin: 0.5em 0;
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 0.85em;
+}
+
+.message-text pre {
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  padding: 1em;
+  overflow-x: auto;
+  margin: 0.5em 0;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.85em;
+  line-height: 1.45;
+}
+
+/* Table styling */
+.message-text .markdown-table {
+  border-collapse: collapse;
+  margin: 0.5em 0;
+  width: 100%;
+  font-size: 0.9em;
+}
+
+.message-text .markdown-table th,
+.message-text .markdown-table td {
+  border: 1px solid #d0d7de;
+  padding: 6px 13px;
+  text-align: left;
+}
+
+.message-text .markdown-table th {
+  background-color: #f6f8fa;
+  font-weight: 600;
+}
+
+.message-text .markdown-table tr:nth-child(even) {
+  background-color: #f6f8fa;
+}
+
+/* Blockquote styling */
+.message-text .markdown-blockquote {
+  border-left: 4px solid #d0d7de;
+  padding: 0 1em;
+  margin: 0.5em 0;
+  color: #656d76;
+  background-color: rgba(208, 215, 222, 0.1);
+  border-radius: 0 6px 6px 0;
+}
+
+.message-text .markdown-blockquote p {
+  margin: 0.5em 0;
+}
+
+/* Link styling */
+.message-text .markdown-link {
+  color: #0969da;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.message-text .markdown-link:hover {
+  color: #0550ae;
+  border-bottom-color: #0550ae;
+}
+
+/* Horizontal rule */
+.message-text hr {
+  border: none;
+  border-top: 1px solid #d0d7de;
+  margin: 1em 0;
+}
+
+/* Task lists */
+.message-text input[type="checkbox"] {
+  margin-right: 0.5em;
+}
+
+.message-text .task-list-item {
+  list-style-type: none;
+  margin-left: -1.5em;
+}
+
+/* Dark mode adjustments for AI messages */
+.message.ai .message-text .inline-code {
+  background-color: rgba(110, 118, 129, 0.4);
+  color: #ff7b72;
+}
+
+.message.ai .message-text pre {
+  background-color: rgba(110, 118, 129, 0.2);
+}
+
+.message.ai .message-text .markdown-table th,
+.message.ai .message-text .markdown-table td {
+  border-color: rgba(240, 246, 252, 0.1);
+}
+
+.message.ai .message-text .markdown-table th {
+  background-color: rgba(110, 118, 129, 0.2);
+}
+
+.message.ai .message-text .markdown-table tr:nth-child(even) {
+  background-color: rgba(110, 118, 129, 0.1);
+}
+
+.message.ai .message-text .markdown-blockquote {
+  border-left-color: rgba(240, 246, 252, 0.3);
+  color: rgba(240, 246, 252, 0.8);
+  background-color: rgba(110, 118, 129, 0.1);
+}
+
+.message.ai .message-text .markdown-link {
+  color: #58a6ff;
+}
+
+.message.ai .message-text .markdown-link:hover {
+  color: #79c0ff;
+  border-bottom-color: #79c0ff;
+}
+
+.message.ai .message-text hr {
+  border-top-color: rgba(240, 246, 252, 0.2);
+}
+
+.message.ai .message-text h1,
+.message.ai .message-text h2 {
+  border-bottom-color: rgba(240, 246, 252, 0.2);
+} 

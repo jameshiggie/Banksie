@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Send, Bot, User, Loader } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import './ChatPanel.css';
 
 const ChatPanel = ({ user }) => {
@@ -291,6 +295,44 @@ const ChatPanel = ({ user }) => {
     });
   };
 
+  // Custom components for markdown rendering
+  const MarkdownComponents = {
+    code({ node, inline, className, children, ...props }) {
+      const match = /language-(\w+)/.exec(className || '');
+      return !inline && match ? (
+        <SyntaxHighlighter
+          style={tomorrow}
+          language={match[1]}
+          PreTag="div"
+          className="code-block"
+          {...props}
+        >
+          {String(children).replace(/\n$/, '')}
+        </SyntaxHighlighter>
+      ) : (
+        <code className={`inline-code ${className || ''}`} {...props}>
+          {children}
+        </code>
+      );
+    },
+    // Style tables
+    table({ children }) {
+      return <table className="markdown-table">{children}</table>;
+    },
+    // Style blockquotes
+    blockquote({ children }) {
+      return <blockquote className="markdown-blockquote">{children}</blockquote>;
+    },
+    // Style links
+    a({ href, children }) {
+      return (
+        <a href={href} target="_blank" rel="noopener noreferrer" className="markdown-link">
+          {children}
+        </a>
+      );
+    }
+  };
+
   if (isLoadingHistory) {
     return (
       <div className="chat-panel">
@@ -351,7 +393,14 @@ const ChatPanel = ({ user }) => {
                   )}
                 </div>
                 <div className="message-content">
-                  <div className="message-text">{message.text}</div>
+                  <div className="message-text">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={MarkdownComponents}
+                    >
+                      {message.text}
+                    </ReactMarkdown>
+                  </div>
                   <div className="message-time">
                     {formatTime(message.timestamp)}
                   </div>
@@ -367,7 +416,12 @@ const ChatPanel = ({ user }) => {
                 </div>
                 <div className="message-content">
                   <div className="message-text">
-                    {streamingMessage}
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={MarkdownComponents}
+                    >
+                      {streamingMessage}
+                    </ReactMarkdown>
                     <span className="streaming-cursor">|</span>
                   </div>
                 </div>

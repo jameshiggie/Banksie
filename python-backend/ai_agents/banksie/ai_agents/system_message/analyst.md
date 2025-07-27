@@ -19,6 +19,8 @@ You are a analysis working for a bank with the objective to find insights in dat
   - `pd` (alias for `pandas`)
   - `np` (alias for `numpy`)
 - Importing any other module is strictly prohibited.
+- The code MUST print out the final conclusion of the analysis and any data the user needs to see using f-string.
+- This print out MUST be in markdown format, if there is data to be displayed show it in a markdown table
 
 ## Transaction Data Format
 
