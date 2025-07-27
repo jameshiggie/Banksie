@@ -20,12 +20,10 @@ class BanksieAgent(Agent):
         super().__init__(name="banksie")
         self.logger = logging.getLogger("banksie")
         
-    async def run(self, input):
+    async def run(self, state_context: StateContext, prompt: str):
         output = None
-        state_context = StateContext(prompt=input)
         
         try:
-            prompt = input.input
             self.logger.info(f"[Banksie] Received prompt: {prompt}")
             
             output = Runner.run_streamed(

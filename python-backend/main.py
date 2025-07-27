@@ -1,17 +1,19 @@
-from fastapi import FastAPI, HTTPException, Depends, WebSocket, WebSocketDisconnect
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import json
+import logging
+import os
+import sqlite3
+from datetime import datetime, timedelta
+from typing import Any, Dict, List
+
+import bcrypt
+from ai_agents.banksie.banksie import BanksieAgent
+from ai_agents.utils.state import StateContext
+from dotenv import load_dotenv
+from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-import sqlite3
-import bcrypt
-from jose import jwt, JWTError
-import json
-from datetime import datetime, timedelta
-from typing import List, Dict, Any
-import os
-from dotenv import load_dotenv
-from ai_agents.banksie.banksie import BanksieAgent
-import logging
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import JWTError, jwt
 from pydantic import BaseModel
 
 # Configure logging first (before loading environment variables)
@@ -79,11 +81,6 @@ DATABASE_PATH = os.getenv("DATABASE_PATH", "./database.sqlite")
 
 # Security
 security = HTTPBearer()
-
-# Input class for BanksieAgent
-class AgentInput:
-    def __init__(self, input_message: str):
-        self.input = input_message
 
 # Pydantic models
 class UserLogin(BaseModel):
@@ -532,11 +529,11 @@ async def chat_stream(chat_message: ChatMessage, current_user: Dict[str, Any] = 
                 yield f"data: {json.dumps({'error': True, 'message': 'AI service is not available. Please check server configuration.'})}\n\n"
                 return
             
-            # Create input for BanksieAgent
-            agent_input = AgentInput(chat_message.message)
+            # Create state context
+            state_context = StateContext(prompt=chat_message.message)
             
             # Get streamed result from BanksieAgent
-            result = await ai_agent.run(agent_input)
+            result = await ai_agent.run(state_context, prompt=chat_message.message)
             
             # Check if result is valid
             if result is None:
@@ -590,95 +587,6 @@ async def chat_stream(chat_message: ChatMessage, current_user: Dict[str, Any] = 
             "Access-Control-Allow-Origin": "*",
         }
     )
-
-@app.websocket("/ws/chat/{user_id}")
-async def websocket_chat(websocket: WebSocket, user_id: int):
-    """WebSocket endpoint for real-time chat"""
-    await manager.connect(websocket)
-    try:
-        while True:
-            # Receive message from client
-            data = await websocket.receive_text()
-            message_data = json.loads(data)
-            
-            # Verify user (you might want to add token verification here)
-            message = message_data.get("message", "")
-            
-            if message:
-                # Check if AI agent is properly initialized
-                if ai_agent is None:
-                    logger.error("AI agent not initialized - cannot process WebSocket chat request")
-                    await manager.send_personal_message(
-                        json.dumps({"type": "error", "message": "AI service is not available. Please check server configuration."}),
-                        websocket
-                    )
-                    continue
-                
-                # Send typing indicator
-                await manager.send_personal_message(
-                    json.dumps({"type": "typing", "typing": True}),
-                    websocket
-                )
-                
-                response_parts = []
-                
-                # Create input for BanksieAgent
-                agent_input = AgentInput(message)
-                
-                # Get streamed result from BanksieAgent
-                result = await ai_agent.run(agent_input)
-                
-                # Check if result is valid
-                if result is None:
-                    logger.error("AI agent returned None result in WebSocket")
-                    await manager.send_personal_message(
-                        json.dumps({"type": "error", "message": "Failed to get response from AI agent"}),
-                        websocket
-                    )
-                    continue
-                
-                # Stream response using the correct pattern
-                async for event in result.stream_events():
-                    if event.type == "raw_response_event":
-                        try:
-                            delta = getattr(event.data, 'delta', None)
-                            if delta:
-                                chunk = delta
-                                response_parts.append(chunk)
-                                await manager.send_personal_message(
-                                    json.dumps({"type": "chunk", "chunk": chunk}),
-                                    websocket
-                                )
-                        except AttributeError:
-                            # Handle cases where event.data doesn't have delta
-                            continue
-                
-                # Complete response
-                complete_response = ''.join(response_parts)
-                
-                # Save to database
-                conn = sqlite3.connect(DATABASE_PATH)
-                cursor = conn.cursor()
-                cursor.execute(
-                    "INSERT INTO chat_messages (user_id, message, response) VALUES (?, ?, ?)",
-                    (user_id, message, complete_response)
-                )
-                message_id = cursor.lastrowid
-                conn.commit()
-                conn.close()
-                
-                # Send completion
-                await manager.send_personal_message(
-                    json.dumps({
-                        "type": "complete",
-                        "message_id": message_id,
-                        "created_at": datetime.now().isoformat()
-                    }),
-                    websocket
-                )
-                
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
 
 @app.get("/health")
 async def health_check():
