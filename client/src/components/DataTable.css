@@ -1,0 +1,353 @@
+.data-table-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  gap: 16px;
+  border-bottom: 2px solid #000000;
+  background: #ffffff;
+}
+
+.search-container {
+  position: relative;
+  flex: 1;
+  max-width: 300px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666666;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  border: 2px solid #000000;
+  border-radius: 0;
+  font-size: 14px;
+  background: white;
+  transition: border-color 0.2s ease;
+  color: #000000;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #ffcc00;
+  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2);
+}
+
+.filter-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-icon {
+  color: #666666;
+}
+
+.filter-select {
+  padding: 10px 12px;
+  border: 2px solid #000000;
+  border-radius: 0;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  color: #000000;
+  font-weight: 600;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #ffcc00;
+  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2);
+}
+
+.table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.data-table th {
+  background: #ffcc00;
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 14px;
+  color: #000000;
+  border-bottom: 2px solid #000000;
+  border-right: 1px solid #000000;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.data-table th:last-child {
+  border-right: none;
+}
+
+.data-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.data-table th.sortable:hover {
+  background: #e6b800;
+}
+
+.data-table th.sortable .sortable {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.data-table td {
+  padding: 12px;
+  border-bottom: 1px solid #000000;
+  border-right: 1px solid #000000;
+  font-size: 14px;
+  color: #000000;
+  background: #ffffff;
+}
+
+.data-table td:last-child {
+  border-right: none;
+}
+
+.table-row:hover {
+  background: #fffbf0;
+}
+
+.date-cell {
+  font-family: 'Monaco', 'Menlo', monospace;
+  color: #666666;
+  width: 120px;
+  font-weight: 500;
+}
+
+.description-cell {
+  font-weight: 500;
+  color: #000000;
+  max-width: 300px;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 0;
+  border: 1px solid #000000;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  background: #ffffff;
+  color: #000000;
+}
+
+/* Banking category colors */
+.category-badge.sales {
+  background: #d1fae5;
+  color: #000000;
+  border-color: #047857;
+}
+
+.category-badge.inventory {
+  background: #fef3c7;
+  color: #000000;
+  border-color: #d97706;
+}
+
+.category-badge.rent {
+  background: #fee2e2;
+  color: #000000;
+  border-color: #dc2626;
+}
+
+.category-badge.utilities {
+  background: #e0e7ff;
+  color: #000000;
+  border-color: #4338ca;
+}
+
+.category-badge.payroll {
+  background: #fce7f3;
+  color: #000000;
+  border-color: #be185d;
+}
+
+.category-badge.insurance {
+  background: #ecfdf5;
+  color: #000000;
+  border-color: #059669;
+}
+
+.category-badge.marketing {
+  background: #f3e8ff;
+  color: #000000;
+  border-color: #7c3aed;
+}
+
+.category-badge.professional-services {
+  background: #fef2f2;
+  color: #000000;
+  border-color: #ef4444;
+}
+
+.category-badge.office-expenses {
+  background: #f0f9ff;
+  color: #000000;
+  border-color: #0284c7;
+}
+
+.category-badge.interest {
+  background: #f0fdf4;
+  color: #000000;
+  border-color: #16a34a;
+}
+
+.category-badge.refunds {
+  background: #fef7f0;
+  color: #000000;
+  border-color: #ea580c;
+}
+
+.category-badge.capital {
+  background: #f8fafc;
+  color: #000000;
+  border-color: #64748b;
+}
+
+.amount-cell {
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-weight: 700;
+  text-align: right;
+  width: 120px;
+}
+
+.amount-cell.credit {
+  color: #047857;
+}
+
+.amount-cell.debit {
+  color: #dc2626;
+}
+
+.balance-cell {
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-weight: 600;
+  text-align: right;
+  color: #374151;
+  width: 120px;
+}
+
+.reference-cell {
+  font-family: 'Monaco', 'Menlo', monospace;
+  color: #666666;
+  font-size: 12px;
+  width: 100px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 0;
+  border: 2px solid #000000;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.status-badge.completed {
+  background: #d1fae5;
+  color: #000000;
+  border-color: #047857;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #000000;
+  border-color: #d97706;
+}
+
+.status-badge.failed {
+  background: #fee2e2;
+  color: #000000;
+  border-color: #dc2626;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #666666;
+  font-style: italic;
+  background: #ffffff;
+}
+
+.table-footer {
+  padding: 16px 24px;
+  border-top: 2px solid #000000;
+  background: #ffcc00;
+}
+
+.results-count {
+  font-size: 14px;
+  color: #000000;
+  margin: 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 768px) {
+  .table-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .search-container {
+    max-width: none;
+  }
+  
+  .data-table {
+    font-size: 12px;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 8px 6px;
+  }
+  
+  .category-badge,
+  .status-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  
+  .amount-cell,
+  .balance-cell {
+    width: 100px;
+  }
+} 

@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+openai
+openai-agents
+python-dotenv
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt
+pydantic
+python-multipart
+websockets
+aiofiles
+httpx
