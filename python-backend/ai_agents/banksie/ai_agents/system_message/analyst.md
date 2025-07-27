@@ -31,7 +31,7 @@ The `transaction_data` variable is a list of dictionaries, where each dictionary
     "id": int,                    # Unique transaction ID
     "transaction_date": str,      # Date of transaction (YYYY-MM-DD format)
     "description": str,           # Transaction description
-    "category": str,              # Transaction category
+    "category": str,              # Transaction category (Capital, Insurance, Interest, Inventory, Marketing, Office Expenses, Payroll, Professional Services, Refunds, Rent, Sales, Utilities)
     "transaction_type": str,      # Type of transaction ('Debit' or 'Credit')
     "amount": float,              # Transaction amount (positive or negative)
     "balance": float,             # Account balance after transaction

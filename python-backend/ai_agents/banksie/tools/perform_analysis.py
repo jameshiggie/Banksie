@@ -135,54 +135,8 @@ def perform_analysis(wrapper: RunContextWrapper[StateContext], code: str) -> str
 
 
 def extract_python_code_block(code: str) -> str:
-    # Normalize line endings
-    code = code.replace("\r\n", "\n").replace("\r", "\n")
+    # Extract the python code block from the code
+    code = code.replace("```python\n", "").replace("```", "").strip()
 
-    # Match ```python\n ... \n``` or ```python ... ```
-    match = re.search(r'```python\s*\n?(.*?)\n?```', code, re.DOTALL)
-    if match:
-        raw_code = match.group(1)
-    else:
-        # If no code block found, treat as raw code
-        raw_code = code
+    return code
 
-    # Sanitize, dedent, and return
-    sanitized = sanitize_code_lines(raw_code)
-    return dedent_code(sanitized.strip())
-
-def dedent_code(code: str) -> str:
-    lines = code.split('\n')
-    # Skip empty lines when measuring indent
-    non_empty_lines = [line for line in lines if line.strip()]
-    if not non_empty_lines:
-        return code  # nothing to dedent
-
-    # Find minimum indentation of non-empty lines
-    min_indent = min((len(line) - len(line.lstrip(' '))) for line in non_empty_lines)
-
-    # Remove min_indent spaces from start of each line
-    dedented_lines = [line[min_indent:] if len(line) >= min_indent else line for line in lines]
-
-    return '\n'.join(dedented_lines)
-
-def sanitize_code_lines(code: str) -> str:
-    lines = code.split('\n')
-    cleaned = []
-
-    for line in lines:
-        stripped = line.lstrip()
-
-        # Skip empty or markdown artifact lines
-        if stripped in {"```", "'''", "---"}:
-            continue
-
-        # Remove accidental leading '=' that breaks assignment
-        if stripped.startswith('=') and not stripped.startswith(("==", "=>", "=~")):
-            stripped = stripped[1:].lstrip()
-
-        # Strip trailing semicolons, stray backticks/quotes
-        stripped = re.sub(r'[;`\'"]+$', '', stripped)
-
-        cleaned.append(stripped)
-
-    return '\n'.join(cleaned)

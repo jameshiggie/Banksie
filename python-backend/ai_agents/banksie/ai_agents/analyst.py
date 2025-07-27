@@ -15,7 +15,7 @@ def analyst_agent() -> Agent:
     agent = Agent[StateContext](
         name="analyst Agent",
         instructions=sys_msg,
-        model="gpt-4.1-mini-2025-04-14",
+        model="gpt-4.1",
         tool_use_behavior="run_llm_again",
         tools=[perform_analysis],
         handoffs=[],
