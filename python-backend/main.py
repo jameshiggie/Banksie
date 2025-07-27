@@ -14,12 +14,53 @@ from ai_agents.banksie.banksie import BanksieAgent
 import logging
 from pydantic import BaseModel
 
-# Load environment variables
-load_dotenv()
-
-# Configure logging
+# Configure logging first (before loading environment variables)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Load environment variables from local .env file with priority order
+# This ensures local .env files take precedence over global environment variables
+def load_local_env():
+    """
+    Load environment variables from local .env file with multiple fallback locations.
+    Priority order:
+    1. .env in project root (one level up from python-backend/)
+    2. .env in python-backend/ directory
+    3. .env in current working directory
+    """
+    current_file_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Try different .env file locations in priority order
+    env_locations = [
+        # Project root (one level up from python-backend/)
+        os.path.join(os.path.dirname(current_file_dir), '.env'),
+        # python-backend directory
+        os.path.join(current_file_dir, '.env'),
+        # Current working directory
+        os.path.join(os.getcwd(), '.env')
+    ]
+    
+    env_loaded = False
+    for env_path in env_locations:
+        if os.path.exists(env_path):
+            # Clear existing environment variables that might conflict
+            # This ensures local .env takes precedence over global env vars
+            load_dotenv(dotenv_path=env_path, override=True)
+            logger.info(f"✓ Loaded environment variables from: {env_path}")
+            env_loaded = True
+            break
+        else:
+            logger.debug(f"✗ .env file not found at: {env_path}")
+    
+    if not env_loaded:
+        logger.warning("⚠ No local .env file found. Using system environment variables.")
+        # Still try to load from default locations as fallback
+        load_dotenv(override=True)
+    
+    return env_loaded
+
+# Load the local environment variables
+load_local_env()
 
 app = FastAPI(title="AI Chatbot API", version="1.0.0")
 
@@ -286,72 +327,38 @@ def init_database():
 # Initialize database on startup
 init_database()
 
-# Mock AI Agent for development/testing without OpenAI API key
-class MockAIAgent:
-    def __init__(self):
-        self.system_prompt = """You are an AI financial assistant for a business banking platform."""
-    
-    async def run(self, input_obj):
-        """Mock run method that returns a mock streaming result"""
-        class MockStreamResult:
-            async def stream_events(self):
-                mock_responses = [
-                    "Thank you for your question about your business finances. ",
-                    "Based on your transaction history, I can see several patterns in your business operations. ",
-                    "Your account shows regular inventory purchases from suppliers like TechSource Solutions and Premium Manufacturing Co. ",
-                    "Sales revenue appears to be coming from various enterprise clients including Corporate Dynamics and Global Partners Inc. ",
-                    "Operating expenses include rent payments to City Properties Management and utility costs. ",
-                    "Overall, your business shows healthy cash flow with regular income and manageable expenses. ",
-                    "I'd recommend monitoring your inventory turnover and consider optimizing supplier payment terms for better cash flow management."
-                ]
-                
-                import asyncio
-                for part in mock_responses:
-                    # Create a mock event with delta
-                    class MockEvent:
-                        def __init__(self, delta_text):
-                            self.type = "raw_response_event"
-                            self.data = MockEventData(delta_text)
-                    
-                    class MockEventData:
-                        def __init__(self, delta_text):
-                            self.delta = delta_text
-                    
-                    yield MockEvent(part)
-                    await asyncio.sleep(0.1)  # Simulate streaming delay
-        
-        return MockStreamResult()
-    
-    async def stream_response(self, message: str, user_data=None):
-        """Mock streaming response for development (legacy method)"""
-        mock_responses = [
-            "Thank you for your question about your business finances. ",
-            "Based on your transaction history, I can see several patterns in your business operations. ",
-            "Your account shows regular inventory purchases from suppliers like TechSource Solutions and Premium Manufacturing Co. ",
-            "Sales revenue appears to be coming from various enterprise clients including Corporate Dynamics and Global Partners Inc. ",
-            "Operating expenses include rent payments to City Properties Management and utility costs. ",
-            "Overall, your business shows healthy cash flow with regular income and manageable expenses. ",
-            "I'd recommend monitoring your inventory turnover and consider optimizing supplier payment terms for better cash flow management."
-        ]
-        
-        import asyncio
-        for part in mock_responses:
-            yield part
-            await asyncio.sleep(0.1)  # Simulate streaming delay
-
-# Initialize AI Agent (use mock if no OpenAI API key)
+# Initialize AI Agent with proper error handling and logging
 try:
+    # Load OpenAI API key from project root .env file
     openai_key = os.getenv("OPENAI_API_KEY")
-    if openai_key and openai_key.strip() and openai_key != "your-openai-api-key-here":
-        ai_agent = BanksieAgent()
-        logger.info("Initialized OpenAI-powered AI Agent")
+    
+    # Debug information to help troubleshoot environment variable loading
+    if openai_key:
+        # Show first 10 and last 4 characters for debugging (keep middle hidden for security)
+        masked_key = f"{openai_key[:10]}...{openai_key[-4:]}" if len(openai_key) > 14 else "***"
+        logger.info(f"🔑 OpenAI API Key loaded: {masked_key}")
     else:
-        ai_agent = MockAIAgent()
-        logger.info("Initialized Mock AI Agent (no OpenAI API key provided)")
+        logger.warning("❌ OpenAI API Key not found in environment variables")
+        logger.warning("📋 Available environment variables starting with 'OPENAI':")
+        for key, value in os.environ.items():
+            if key.startswith('OPENAI'):
+                masked_value = f"{value[:10]}...{value[-4:]}" if len(value) > 14 else "***"
+                logger.warning(f"   {key}: {masked_value}")
+    
+    if not openai_key or not openai_key.strip() or openai_key == "your-openai-api-key-here":
+        logger.error("OpenAI API key is missing or invalid. Please check your .env file.")
+        logger.error("Expected format: OPENAI_API_KEY=sk-proj-your-actual-key-here")
+        raise ValueError("Invalid or missing OpenAI API key")
+    
+    # Initialize the BanksieAgent
+    ai_agent = BanksieAgent()
+    logger.info("✓ Successfully initialized OpenAI-powered BanksieAgent")
+    
 except Exception as e:
-    logger.error(f"Failed to initialize AI Agent: {e}")
-    ai_agent = MockAIAgent()
-    logger.info("Fallback to Mock AI Agent due to initialization error")
+    logger.error(f"❌ Failed to initialize BanksieAgent: {e}")
+    logger.error("The chat functionality will not work without a valid OpenAI API key")
+    logger.error("Please ensure your .env file contains: OPENAI_API_KEY=sk-proj-your-actual-key-here")
+    ai_agent = None
 
 # Authentication functions
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Dict[str, Any]:
@@ -519,6 +526,12 @@ async def chat_stream(chat_message: ChatMessage, current_user: Dict[str, Any] = 
         response_parts = []
         
         try:
+            # Check if AI agent is properly initialized
+            if ai_agent is None:
+                logger.error("AI agent not initialized - cannot process chat request")
+                yield f"data: {json.dumps({'error': True, 'message': 'AI service is not available. Please check server configuration.'})}\n\n"
+                return
+            
             # Create input for BanksieAgent
             agent_input = AgentInput(chat_message.message)
             
@@ -527,6 +540,7 @@ async def chat_stream(chat_message: ChatMessage, current_user: Dict[str, Any] = 
             
             # Check if result is valid
             if result is None:
+                logger.error("AI agent returned None result")
                 raise Exception("Failed to get response from AI agent")
             
             # Stream the response using the correct pattern
@@ -591,6 +605,15 @@ async def websocket_chat(websocket: WebSocket, user_id: int):
             message = message_data.get("message", "")
             
             if message:
+                # Check if AI agent is properly initialized
+                if ai_agent is None:
+                    logger.error("AI agent not initialized - cannot process WebSocket chat request")
+                    await manager.send_personal_message(
+                        json.dumps({"type": "error", "message": "AI service is not available. Please check server configuration."}),
+                        websocket
+                    )
+                    continue
+                
                 # Send typing indicator
                 await manager.send_personal_message(
                     json.dumps({"type": "typing", "typing": True}),
@@ -607,6 +630,7 @@ async def websocket_chat(websocket: WebSocket, user_id: int):
                 
                 # Check if result is valid
                 if result is None:
+                    logger.error("AI agent returned None result in WebSocket")
                     await manager.send_personal_message(
                         json.dumps({"type": "error", "message": "Failed to get response from AI agent"}),
                         websocket
@@ -658,7 +682,21 @@ async def websocket_chat(websocket: WebSocket, user_id: int):
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "openai_available": True} # openai_client is not defined, so assuming True for now
+    """Health check endpoint that reports AI agent availability"""
+    ai_available = ai_agent is not None
+    status = "healthy" if ai_available else "degraded"
+    
+    response = {
+        "status": status,
+        "ai_agent_available": ai_available,
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    if not ai_available:
+        response["message"] = "AI chat functionality is not available. Check OpenAI API key configuration."
+        logger.warning("Health check: AI agent not available")
+    
+    return response
 
 @app.get("/api/test")
 async def test_endpoint():

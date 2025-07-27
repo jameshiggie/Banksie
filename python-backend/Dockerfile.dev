@@ -21,8 +21,11 @@ RUN pip install --upgrade pip
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies in virtual environment
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies in virtual environment with verbose output
+RUN pip install --no-cache-dir -r requirements.txt --verbose
+
+# Verify openai-agents installation
+RUN python -c "import agents; print('✅ agents module imported successfully'); print('Available:', dir(agents)[:5])"
 
 # Install development dependencies
 RUN pip install --no-cache-dir \
