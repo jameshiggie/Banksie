@@ -4,10 +4,10 @@ from typing import Literal
 
 @dataclass
 class StateContext:
-    #user prompt
+    # User prompt
     prompt: str = field(default="")
-    #step number
+    # Step number
     step: int = 0
-    #transaction data
+    # Transaction data
     transaction_data: list[dict] = field(default_factory=list)
     
