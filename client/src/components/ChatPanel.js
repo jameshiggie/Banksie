@@ -169,7 +169,7 @@ const ChatPanel = ({ user }) => {
                     // Streaming complete, add final message
                     const aiMessage = {
                       id: data.message_id || Date.now() + 1,
-                      text: accumulatedResponse || 'No response received',
+                      text: filterJsonContent(accumulatedResponse) || 'No response received',
                       sender: 'ai',
                       timestamp: data.created_at || new Date().toISOString()
                     };
@@ -181,8 +181,11 @@ const ChatPanel = ({ user }) => {
                   } else if (data.chunk) {
                     // Update streaming message
                     accumulatedResponse += data.chunk;
-                    console.log('Updating streaming message:', accumulatedResponse);
-                    setStreamingMessage(accumulatedResponse);
+                    
+                    // Filter out JSON content before displaying
+                    const filteredMessage = filterJsonContent(accumulatedResponse);
+                    console.log('Updating streaming message:', filteredMessage);
+                    setStreamingMessage(filteredMessage);
                     
                     // Force a small delay to ensure React updates
                     await new Promise(resolve => setTimeout(resolve, 10));
@@ -242,6 +245,43 @@ const ChatPanel = ({ user }) => {
       setStreamingMessage('');
       setIsLoading(false);
     }
+  };
+
+  // Helper function to filter out JSON content within curly braces
+  const filterJsonContent = (text) => {
+    // Use regex to match complete JSON objects from the beginning of text
+    // This handles the case where JSON appears at the start of the response
+    let result = text;
+    
+    // Match JSON objects that start at the beginning or after whitespace
+    // and have matching braces
+    let modified = true;
+    while (modified) {
+      modified = false;
+      let braceCount = 0;
+      let start = -1;
+      
+      for (let i = 0; i < result.length; i++) {
+        const char = result[i];
+        
+        if (char === '{') {
+          if (braceCount === 0) {
+            start = i;
+          }
+          braceCount++;
+        } else if (char === '}') {
+          braceCount--;
+          if (braceCount === 0 && start !== -1) {
+            // Found a complete JSON object, remove it
+            result = result.substring(0, start) + result.substring(i + 1);
+            modified = true;
+            break;
+          }
+        }
+      }
+    }
+    
+    return result.trim();
   };
 
   const formatTime = (timestamp) => {

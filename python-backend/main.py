@@ -9,11 +9,12 @@ import bcrypt
 from ai_agents.banksie.banksie import BanksieAgent
 from ai_agents.utils.state import StateContext
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
+from openai.types.responses import ResponseTextDeltaEvent
 from pydantic import BaseModel
 
 # Configure logging first (before loading environment variables)
@@ -357,6 +358,41 @@ except Exception as e:
     logger.error("Please ensure your .env file contains: OPENAI_API_KEY=sk-proj-your-actual-key-here")
     ai_agent = None
 
+# Add this helper function after the existing database functions
+def get_transaction_data() -> List[Dict[str, Any]]:
+    """Fetch all transaction data from the database"""
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT * FROM transactions ORDER BY transaction_date DESC")
+        rows = cursor.fetchall()
+        conn.close()
+        
+        data = []
+        for row in rows:
+            data.append({
+                "id": row[0],
+                "transaction_date": row[1],
+                "description": row[2],
+                "category": row[3],
+                "transaction_type": row[4],
+                "amount": row[5],
+                "balance": row[6],
+                "reference_number": row[7],
+                "status": row[8],
+                "created_at": row[9]
+            })
+        
+        return data
+    
+    except sqlite3.Error as e:
+        logger.error(f"Database error in get_transaction_data: {e}")
+        return []
+    except Exception as e:
+        logger.error(f"Unexpected error in get_transaction_data: {e}")
+        return []
+
 # Authentication functions
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Dict[str, Any]:
     try:
@@ -529,8 +565,15 @@ async def chat_stream(chat_message: ChatMessage, current_user: Dict[str, Any] = 
                 yield f"data: {json.dumps({'error': True, 'message': 'AI service is not available. Please check server configuration.'})}\n\n"
                 return
             
-            # Create state context
-            state_context = StateContext(prompt=chat_message.message)
+            # Get transaction data from database
+            transaction_data = get_transaction_data()
+            logger.info(f"Loaded {len(transaction_data)} transactions for StateContext")
+            
+            # Create state context with transaction data
+            state_context = StateContext(
+                prompt=chat_message.message,
+                transaction_data=transaction_data
+            )
             
             # Get streamed result from BanksieAgent
             result = await ai_agent.run(state_context, prompt=chat_message.message)
@@ -542,7 +585,7 @@ async def chat_stream(chat_message: ChatMessage, current_user: Dict[str, Any] = 
             
             # Stream the response using the correct pattern
             async for event in result.stream_events():
-                if event.type == "raw_response_event":
+                if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
                     # Check if event.data has delta attribute (for text streaming)
                     try:
                         delta = getattr(event.data, 'delta', None)
