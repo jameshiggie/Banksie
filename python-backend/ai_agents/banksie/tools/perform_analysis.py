@@ -1,7 +1,6 @@
 from agents import function_tool, RunContextWrapper
 from ai_agents.utils.state import StateContext
 import io
-import sys
 import re
 from contextlib import redirect_stdout, redirect_stderr
 from datetime import datetime, date, timedelta
@@ -44,20 +43,7 @@ def perform_analysis(wrapper: RunContextWrapper[StateContext], code: str) -> str
     # Access transaction data from the context
     data = wrapper.context.transaction_data
     
-    # Parse the code from ```python\n...\n``` format
-    if code.startswith("```python\n") and code.endswith("\n```"):
-        # Extract the code between the markdown code blocks
-        python_code = code[10:-4]  # Remove ```python\n at start and \n``` at end
-    elif code.startswith("```python"):
-        # Handle case where there might be no newline after python
-        match = re.match(r'```python\n?(.*?)\n?```', code, re.DOTALL)
-        if match:
-            python_code = match.group(1)
-        else:
-            python_code = code
-    else:
-        # If no code block format, use the code as-is
-        python_code = code
+    python_code = extract_python_code_block(code)
     
     # Remove common import statements that won't work in restricted environment
     python_code = re.sub(r'^import pandas as pd\s*\n?', '', python_code, flags=re.MULTILINE)
@@ -146,3 +132,19 @@ def perform_analysis(wrapper: RunContextWrapper[StateContext], code: str) -> str
         result += f"- Available variables: {[k for k in restricted_globals.keys() if not k.startswith('__')]}\n"
     
     return result
+
+
+def extract_python_code_block(code: str) -> str:
+    # Normalize line endings
+    code = code.replace("\r\n", "\n").replace("\r", "\n")
+
+    # Match ```python\n ... \n``` or ```python ... ```
+    match = re.search(r'```python\s*\n?(.*?)\n?```', code, re.DOTALL)
+    if match:
+        raw_code = match.group(1)
+    else:
+        # If no code block found, treat as raw code
+        raw_code = code
+
+    # Strip and return the code block
+    return raw_code.strip()
