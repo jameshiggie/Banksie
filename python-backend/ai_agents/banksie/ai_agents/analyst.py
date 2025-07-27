@@ -1,3 +1,4 @@
+from datetime import datetime
 from agents import Agent
 from pathlib import Path
 
@@ -11,6 +12,7 @@ def analyst_agent() -> Agent:
     """
     #load the sys_msg from the md file
     sys_msg = Path("ai_agents/banksie/ai_agents/system_message/analyst.md").read_text(encoding="utf-8")
+    sys_msg = sys_msg.replace("{datetime}", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     
     agent = Agent[StateContext](
         name="analyst Agent",

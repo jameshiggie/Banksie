@@ -1,35 +1,45 @@
 # AI Chatbot Web Application
 
-A modern, full-stack web application featuring an AI chatbot interface with database management capabilities. Built with React frontend and **Python FastAPI backend using OpenAI's Agents SDK** with streaming responses, containerized with Docker for easy deployment.
+A modern, full-stack web application featuring an AI chatbot interface with database management capabilities. Built with React frontend and **dual backend support** - choose between **Node.js Express** or **Python FastAPI** backends, both with streaming responses and containerized with Docker for easy deployment.
 
-## 🆕 NEW: Docker Development Environment
+## 🚀 **NEW: Dual Backend Architecture**
 
-This application now features a **complete Docker development environment** with:
-- **Python Virtual Environment** inside containers
-- **VS Code Remote Debugging** support
-- **Hot Reload** for both frontend and backend
-- **Isolated Development** with proper dependency management
+This application now features **two complete backend implementations**:
+
+- **🟢 Node.js/Express Backend** - Original implementation with SQLite and OpenAI integration
+- **🐍 Python FastAPI Backend** - Advanced implementation with OpenAI Agents SDK and streaming
+- **⚙️ Configurable Frontend** - React client works seamlessly with either backend
+- **🐳 Docker Support** - Complete containerization for both backend options
 
 ## Features
 
 - 🔐 **User Authentication** - Secure login/registration system with JWT tokens
-- 💬 **AI Chat Interface** - Interactive chatbot with **real-time streaming responses**
-- 🤖 **OpenAI Agents SDK** - Advanced AI capabilities with contextual understanding
+- 💬 **AI Chat Interface** - Interactive chatbot with **real-time streaming responses**  
+- 🤖 **Dual AI Integration** - OpenAI GPT-4 support in both Node.js and Python backends
 - 📊 **Data Management** - Real-time database table view with search and filtering
 - 🎨 **Modern UI** - Commonwealth Bank inspired design with yellow and black
-- 🐳 **Docker Ready** - Complete development and production containers
+- 🐳 **Docker Ready** - Complete development and production containers for both backends
 - 🔧 **Debug Support** - VS Code debugging with Docker containers
 - 📱 **Mobile Friendly** - Responsive design for all device sizes
 - ⚡ **Real-time Streaming** - Server-Sent Events for live AI responses
+- 🔄 **Backend Flexibility** - Switch between Node.js and Python backends easily
 
-## Architecture
+## Architecture Options
 
-- **Frontend**: React 18 with modern hooks and streaming support
+### **Option 1: Node.js Backend (Original)**
+- **Frontend**: React 18 with streaming support
+- **Backend**: Node.js/Express with SQLite and OpenAI integration
+- **Database**: SQLite for lightweight, embedded storage
+- **Port**: 3001 (backend), 3000 (frontend dev)
+
+### **Option 2: Python Backend (Advanced)**
+- **Frontend**: React 18 with streaming support  
 - **Backend**: Python FastAPI with OpenAI Agents SDK integration
-- **AI**: OpenAI GPT-4 with streaming responses and context awareness
-- **Database**: SQLite for lightweight, embedded storage  
-- **Layout**: 80% data table view, 20% chat interface (responsive)
-- **Containerization**: Docker with multi-stage builds and virtual environments
+- **AI**: Advanced OpenAI GPT-4 with Agents SDK
+- **Database**: SQLite for lightweight, embedded storage
+- **Port**: 8000 (backend), 3000 (frontend dev)
+
+**Layout**: 80% data table view, 20% chat interface (responsive for both backends)
 
 ## Quick Start
 
@@ -39,37 +49,61 @@ This application now features a **complete Docker development environment** with
 - VS Code (recommended for debugging)
 - OpenAI API Key (optional - uses mock responses without it)
 
-### Option 1: Docker Development (Recommended)
+### 🐳 **Option A: Docker Setup (Recommended)**
 
-1. **Clone Repository**
+#### **Node.js Backend (Original)**
+
+1. **Start Node.js Stack**
    ```bash
    git clone <your-repo-url>
    cd Banksie
-   ```
-
-2. **Set Environment Variables**
-   ```bash
+   
    # Optional: Add your OpenAI API key
    echo "OPENAI_API_KEY=your-openai-api-key-here" > .env
+   
+   # Start Node.js backend stack
+   docker-compose up --build
    ```
 
-3. **Start Development Environment**
+2. **Access Application**
+   - **Full Application**: http://localhost:3001
+   - **React Dev Server**: http://localhost:3000 (if running dev mode)
+
+#### **Python Backend (Advanced)**
+
+1. **Start Python Stack**
    ```bash
-   # Start both Python backend and React frontend in development mode
+   git clone <your-repo-url>
+   cd Banksie
+   
+   # Optional: Add your OpenAI API key  
+   echo "OPENAI_API_KEY=your-openai-api-key-here" > .env
+   
+   # Start Python backend stack (development mode)
    docker-compose -f docker-compose.python.yml --profile dev up --build
    ```
 
-4. **Access the Application**
+2. **Access Application**
    - **React Frontend**: http://localhost:3000
    - **Python Backend**: http://localhost:8000
    - **API Documentation**: http://localhost:8000/docs
    - **Database Admin**: http://localhost:8080 (Adminer)
 
-5. **Login**
-   - Username: `admin`
-   - Password: `admin123`
+### 💻 **Option B: Local Development**
 
-### Option 2: Local Development Setup
+#### **Node.js Backend Setup**
+
+1. **Install Dependencies**
+   ```bash
+   npm run install-all  # Installs root, server, and client dependencies
+   ```
+
+2. **Start Development**
+   ```bash
+   npm run dev  # Starts both server (3001) and client (3000)
+   ```
+
+#### **Python Backend Setup**
 
 1. **Setup Python Backend**
    ```bash
@@ -84,21 +118,28 @@ This application now features a **complete Docker development environment** with
    ```bash
    cd client
    npm install
-   npm start
+   REACT_APP_API_URL=http://localhost:8000 npm start
    ```
 
-## 🐳 Docker Development Features
+### 🔐 **Login Credentials**
+- Username: `admin`
+- Password: `admin123`
 
-### **Virtual Environment Inside Container**
-- Each container has its own isolated Python virtual environment
-- Dependencies are properly managed and cached
-- No conflicts with host system Python
+## 🐳 **Docker Development Features**
 
-### **Development vs Production**
-- **Development**: Hot reload, debugging, development tools
-- **Production**: Optimized builds, minimal images, production settings
+### **Node.js Docker Setup**
+- **Single container** with both frontend build and backend
+- **Production optimized** with multi-stage builds
+- **Automatic restarts** with health checks
+- **Volume mounting** for data persistence
 
-### **Available Profiles**
+### **Python Docker Setup** 
+- **Virtual Environment** inside containers
+- **VS Code Remote Debugging** support
+- **Hot Reload** for both frontend and backend
+- **Isolated Development** with proper dependency management
+
+### **Available Profiles (Python)**
 ```bash
 # Development mode (hot reload, debugging)
 docker-compose -f docker-compose.python.yml --profile dev up
@@ -107,9 +148,9 @@ docker-compose -f docker-compose.python.yml --profile dev up
 docker-compose -f docker-compose.python.yml --profile production up
 ```
 
-## 🔧 VS Code Debugging
+## 🔧 **VS Code Debugging**
 
-### **Docker Remote Debugging**
+### **Python Backend Debugging**
 
 1. **Start Development Container**
    ```bash
@@ -121,59 +162,62 @@ docker-compose -f docker-compose.python.yml --profile production up
    - Set breakpoints in your Python code
    - Debug runs inside the Docker container!
 
-3. **Available Debug Configurations**:
-   - `Debug Python Backend (Local)` - Local Python debugging
-   - `Debug Python Backend (Docker)` - Remote Docker debugging
-   - `Debug Python Backend (Docker - Wait)` - Wait for debugger attachment
-   - `Debug React Frontend` - React app debugging
-   - `Debug Full Stack (Docker)` - Both frontend and backend
+### **Available Debug Configurations**:
+- `Debug Python Backend (Local)` - Local Python debugging
+- `Debug Python Backend (Docker)` - Remote Docker debugging  
+- `Debug Python Backend (Docker - Wait)` - Wait for debugger attachment
+- `Debug React Frontend` - React app debugging
+- `Debug Full Stack (Docker)` - Both frontend and backend
 
-### **Debug Features**
-- **Breakpoints** work in Docker containers
-- **Variable inspection** and call stack
-- **Hot reload** with code changes
-- **Path mapping** between host and container
-
-## 🛠️ Available VS Code Tasks
+## 🛠️ **Available VS Code Tasks**
 
 Access via `Ctrl+Shift+P` → "Tasks: Run Task":
 
 - **Start Full Stack (Docker Dev)** - Complete development environment
-- **Start Python Backend Docker Dev** - Backend only
+- **Start Python Backend Docker Dev** - Python backend only
+- **Start Node.js Full Stack** - Node.js backend with frontend
 - **Start React Frontend** - Frontend only
 - **Stop Docker Services** - Stop all containers
 - **View Docker Logs** - Monitor container logs
 - **Run Tests (Python)** - Execute Python tests
 - **Format Python Code** - Auto-format with Black
 
-## Project Structure
+## **Project Structure**
 
 ```
 ai-chatbot-webapp/
-├── python-backend/              # Python FastAPI backend
-│   ├── main.py                 # FastAPI app with OpenAI integration
+├── python-backend/              # 🐍 Python FastAPI backend
+│   ├── main.py                 # FastAPI app with OpenAI Agents SDK
 │   ├── start.py                # Standard startup script
 │   ├── start-debug.py          # Debug startup with debugpy
 │   ├── requirements.txt        # Production dependencies
 │   ├── requirements.dev.txt    # Development dependencies
 │   ├── Dockerfile              # Production container
 │   ├── Dockerfile.dev          # Development container
-│   └── .env                    # Environment variables
-├── client/                     # React frontend
+│   └── ai_agents/              # OpenAI Agents implementation
+├── server/                     # 🟢 Node.js Express backend
+│   ├── index.js                # Express server with OpenAI integration
+│   ├── package.json           # Node.js dependencies
+│   └── database.sqlite        # SQLite database
+├── client/                     # ⚛️ React frontend (works with both backends)
 │   ├── src/components/         # React components with streaming
-│   ├── Dockerfile              # Production container
-│   ├── Dockerfile.dev          # Development container
-│   └── package.json           # Updated proxy for Python backend
+│   ├── src/setupProxy.js      # Proxy configuration for backend selection
+│   ├── Dockerfile             # Production container  
+│   ├── Dockerfile.dev         # Development container  
+│   └── package.json           # Frontend dependencies
 ├── .vscode/                    # VS Code configuration
 │   ├── launch.json            # Debug configurations
 │   └── tasks.json             # Development tasks
-├── docker-compose.python.yml   # Docker development setup
+├── docker-compose.yml          # 🟢 Node.js Docker setup
+├── docker-compose.python.yml   # 🐍 Python Docker setup
+├── Dockerfile                  # Root Dockerfile for Node.js stack
+├── package.json               # Root package.json for Node.js orchestration
 └── README.md
 ```
 
-## 🤖 OpenAI Integration
+## 🤖 **AI Integration**
 
-### Setting up OpenAI API
+### **Setting up OpenAI API**
 
 1. **Get API Key**: Visit [OpenAI Platform](https://platform.openai.com/api-keys)
 2. **Set Environment Variable**:
@@ -181,53 +225,55 @@ ai-chatbot-webapp/
    # Create .env file in project root
    echo "OPENAI_API_KEY=your-openai-api-key-here" > .env
    ```
-3. **Without API Key**: The app uses intelligent mock responses
+3. **Without API Key**: Both backends use intelligent mock responses
 
-### AI Agent Features
+### **Backend-Specific AI Features**
 
-- **Contextual Understanding**: AI knows about your data structure
-- **Streaming Responses**: Real-time message generation
-- **Data Analysis**: Can analyze and discuss your business data
-- **Professional Tone**: Tailored for business data management
+#### **Node.js Backend**
+- **Direct OpenAI API** integration with GPT-4
+- **Streaming responses** via Server-Sent Events
+- **Context management** for conversation history
+- **Rate limiting** and error handling
 
-## API Endpoints (Python Backend)
+#### **Python Backend** 
+- **OpenAI Agents SDK** for advanced AI capabilities
+- **Contextual understanding** of data structure
+- **Advanced streaming** with real-time message generation
+- **Data analysis** capabilities for business intelligence
 
-### Authentication
+## **API Endpoints**
+
+### **Common Endpoints (Both Backends)**
 - `POST /api/login` - User login
-- `POST /api/register` - User registration
-
-### Data Management
+- `POST /api/register` - User registration (Python only)
 - `GET /api/data` - Fetch table data (authenticated)
 
-### Chat (Streaming)
+### **Node.js Backend (Port 3001)**
+- `GET /` - Serves complete application
+- `POST /api/chat` - Send chat message
+- `GET /api/chat/history` - Get chat history
+
+### **Python Backend (Port 8000)**
 - `GET /api/chat/history` - Get chat history (authenticated)
 - `POST /api/chat/stream` - **Stream AI response** (Server-Sent Events)
 - `WS /ws/chat/{user_id}` - WebSocket chat (alternative)
-
-### Health & Docs
 - `GET /health` - Health check
 - `GET /docs` - Interactive API documentation (Swagger)
 
-## Environment Configuration
+## **Environment Configuration**
 
-### Docker Environment Variables
-
-```yaml
-# Development
-environment:
-  - DEBUG=True
-  - DEBUG_PORT=5678
-  - DEBUG_WAIT=False
-  - OPENAI_API_KEY=${OPENAI_API_KEY}
-  - JWT_SECRET=dev-secret-key
-  - PYTHONUNBUFFERED=1
-  - PYTHONDONTWRITEBYTECODE=1
-```
-
-### Local Development (.env)
-
+### **Node.js Environment**
 ```env
 # Server Configuration
+NODE_ENV=development
+PORT=3001
+JWT_SECRET=your-jwt-secret-key
+OPENAI_API_KEY=your-openai-api-key-here
+```
+
+### **Python Environment**
+```env
+# Server Configuration  
 PORT=8000
 DEBUG=True
 HOST=0.0.0.0
@@ -243,55 +289,52 @@ OPENAI_API_KEY=your-openai-api-key-here
 JWT_SECRET=dev-secret-key
 ```
 
-## Development Workflow
+### **Frontend Configuration**
+```env
+# Backend Selection
+REACT_APP_API_URL=http://localhost:8000  # Python backend
+# REACT_APP_API_URL=http://localhost:3001  # Node.js backend
+```
+
+## **Development Workflow**
 
 ### **Typical Development Session**
 
-1. **Start Environment**
-   ```bash
-   docker-compose -f docker-compose.python.yml --profile dev up -d
-   ```
-
-2. **Open VS Code**
-   ```bash
-   code .
-   ```
-
-3. **Start Debugging**
-   - Press `F5` → Select "Debug Full Stack (Docker)"
-   - Set breakpoints in Python code
-   - Make changes and see hot reload
-
-4. **View Logs**
-   ```bash
-   docker-compose -f docker-compose.python.yml logs -f
-   ```
-
-5. **Stop Environment**
-   ```bash
-   docker-compose -f docker-compose.python.yml down
-   ```
-
-### **Container Management**
-
+#### **For Node.js Development**
 ```bash
-# View running containers
-docker ps
+# Start full stack
+docker-compose up --build
 
-# Access container shell
-docker exec -it banksie-ai-chatbot-python-dev-1 bash
+# Or local development
+npm run dev
 
-# View container logs
-docker logs banksie-ai-chatbot-python-dev-1
-
-# Rebuild containers
-docker-compose -f docker-compose.python.yml --profile dev up --build
+# Access at http://localhost:3001 (production) or http://localhost:3000 (dev)
 ```
 
-## Production Deployment
+#### **For Python Development**
+```bash
+# Start development environment
+docker-compose -f docker-compose.python.yml --profile dev up --build
 
-### Docker Production
+# Start debugging in VS Code
+# Press F5 → Select "Debug Full Stack (Docker)"
 
+# Access at http://localhost:3000 (frontend) and http://localhost:8000 (backend)
+```
+
+## **Production Deployment**
+
+### **Node.js Production**
+```bash
+# Build and deploy
+docker-compose up --build -d
+
+# Or build individual container
+docker build -t ai-chatbot-node .
+docker run -p 3001:3001 -e OPENAI_API_KEY=$OPENAI_API_KEY ai-chatbot-node
+```
+
+### **Python Production**
 ```bash
 # Set your OpenAI API key
 export OPENAI_API_KEY=your-key-here
@@ -299,80 +342,115 @@ export OPENAI_API_KEY=your-key-here
 # Build and deploy production
 docker-compose -f docker-compose.python.yml --profile production up --build -d
 
-# Or build individual containers
+# Or build individual container
 docker build -f python-backend/Dockerfile -t ai-chatbot-python ./python-backend
 docker run -p 8000:8000 -e OPENAI_API_KEY=$OPENAI_API_KEY ai-chatbot-python
 ```
 
-## Performance & Scaling
+## **Performance & Scaling**
 
-- **Docker Multi-stage Builds**: Optimized production images
+- **Docker Multi-stage Builds**: Optimized production images for both backends
 - **Virtual Environments**: Isolated Python dependencies
-- **Volume Caching**: Persistent virtual environment storage
-- **Health Checks**: Container health monitoring
+- **Volume Caching**: Persistent dependency storage
+- **Health Checks**: Container health monitoring for both stacks
 - **Hot Reload**: Development efficiency
 - **Streaming**: Reduces perceived latency with real-time responses
+- **Backend Choice**: Choose optimal backend for your use case
 
-## Security Notes
+## **Security Notes**
 
 - **Environment Isolation**: Docker containers provide security boundaries
-- **Virtual Environments**: Dependency isolation
+- **JWT Authentication**: Secure token-based authentication in both backends
 - **Secrets Management**: Environment variable injection
 - **Network Isolation**: Docker network separation
 - **Health Monitoring**: Container health checks
+- **Input Validation**: Request validation in both backends
 
-## Troubleshooting
+## **Backend Comparison**
 
-### Common Issues
+| Feature | Node.js Backend | Python Backend |
+|---------|-----------------|----------------|
+| **Language** | JavaScript/Node.js | Python |
+| **Framework** | Express.js | FastAPI |
+| **OpenAI Integration** | Direct API calls | OpenAI Agents SDK |
+| **Performance** | Fast, lightweight | Feature-rich, advanced AI |
+| **Development** | Simple setup | Advanced debugging |
+| **Production Ready** | ✅ Yes | ✅ Yes |
+| **Streaming** | Server-Sent Events | Server-Sent Events + WebSocket |
+| **API Docs** | Manual | Auto-generated (Swagger) |
+| **Best For** | Simple deployments | Advanced AI features |
 
-1. **Container Won't Start**: Check logs with `docker-compose logs`
-2. **Debug Port Conflicts**: Change `DEBUG_PORT` in environment
-3. **Volume Permission Issues**: On Linux, check Docker volume permissions
-4. **Hot Reload Not Working**: Ensure volume mounts are correct
-5. **OpenAI API Issues**: Check API key and quota
+## **Troubleshooting**
 
-### Debug Commands
+### **Common Issues**
+
+1. **Wrong Backend Running**: Check which Docker compose file you're using
+2. **Port Conflicts**: Node.js uses 3001, Python uses 8000
+3. **Frontend Proxy Issues**: Check `REACT_APP_API_URL` environment variable
+4. **Container Won't Start**: Check logs with `docker-compose logs`
+5. **Debug Port Conflicts**: Change `DEBUG_PORT` in Python environment
+6. **OpenAI API Issues**: Check API key and quota
+
+### **Debug Commands**
 
 ```bash
-# Check container status
-docker-compose -f docker-compose.python.yml ps
+# Check which containers are running
+docker ps
 
-# View logs
-docker-compose -f docker-compose.python.yml logs ai-chatbot-python-dev
+# Node.js stack logs
+docker-compose logs
 
-# Access container shell
-docker exec -it $(docker-compose -f docker-compose.python.yml ps -q ai-chatbot-python-dev) bash
+# Python stack logs  
+docker-compose -f docker-compose.python.yml logs
 
-# Check virtual environment
-docker exec -it container_name which python
-docker exec -it container_name pip list
+# Check frontend proxy configuration
+cat client/src/setupProxy.js
+
+# Test backend directly
+curl http://localhost:3001/health  # Node.js
+curl http://localhost:8000/health  # Python
 ```
 
-## Development Tips
-
-1. **Use VS Code Tasks**: Access common operations via Command Palette
-2. **Monitor Logs**: Keep log window open during development
-3. **Hot Reload**: Changes to Python files automatically restart server
-4. **Breakpoint Debugging**: Set breakpoints and debug in containers
-5. **Environment Variables**: Use `.env` files for local overrides
-
-## Contributing
+## **Contributing**
 
 1. Fork the repository
-2. Create a feature branch  
-3. **Use Docker development environment**
-4. Add tests for new features
-5. Test with both mock and real OpenAI responses
-6. Submit a pull request
+2. Create a feature branch
+3. **Choose your backend** (Node.js or Python)
+4. **Use appropriate Docker setup** for development
+5. Add tests for new features
+6. Test with both mock and real OpenAI responses
+7. Submit a pull request
 
-## License
+## **License**
 
 MIT License - see LICENSE file for details.
 
 ---
 
-**🐳 Quick Start**: `docker-compose -f docker-compose.python.yml --profile dev up --build`
+## **Quick Reference**
 
-**🔐 Demo Credentials**: Username: `admin`, Password: `admin123`
+### **🟢 Node.js Stack**
+```bash
+# Development
+npm run dev
 
-**🤖 AI Features**: Get your OpenAI API key at [platform.openai.com](https://platform.openai.com/api-keys)
+# Docker
+docker-compose up --build
+
+# Access: http://localhost:3001
+```
+
+### **🐍 Python Stack**  
+```bash
+# Development
+docker-compose -f docker-compose.python.yml --profile dev up --build
+
+# Access: http://localhost:3000 (frontend) + http://localhost:8000 (backend)
+```
+
+### **🔐 Demo Credentials**
+- Username: `admin`  
+- Password: `admin123`
+
+### **🤖 AI Setup**
+Get your OpenAI API key at [platform.openai.com](https://platform.openai.com/api-keys)
