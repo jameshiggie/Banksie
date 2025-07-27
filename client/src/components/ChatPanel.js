@@ -95,7 +95,7 @@ const ChatPanel = ({ user }) => {
         isError: true
       };
       setMessages(prev => [...prev, timeoutMessage]);
-    }, 30000); // 30 second timeout
+    }, 120000); // 2 minute timeout
 
     try {
       const token = localStorage.getItem('token');
@@ -112,7 +112,7 @@ const ChatPanel = ({ user }) => {
         },
         body: JSON.stringify({ message: messageText }),
         // Add timeout to the fetch request
-        signal: AbortSignal.timeout(25000) // 25 second fetch timeout
+        signal: AbortSignal.timeout(120000) // 2 minute fetch timeout
       });
 
       if (!response.ok) {

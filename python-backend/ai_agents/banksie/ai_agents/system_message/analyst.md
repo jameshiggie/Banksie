@@ -32,12 +32,12 @@ The `transaction_data` variable is a list of dictionaries, where each dictionary
     "transaction_date": str,      # Date of transaction (YYYY-MM-DD format)
     "description": str,           # Transaction description
     "category": str,              # Transaction category
-    "transaction_type": str,      # Type of transaction (e.g., "debit", "credit")
+    "transaction_type": str,      # Type of transaction ('Debit' or 'Credit')
     "amount": float,              # Transaction amount (positive or negative)
     "balance": float,             # Account balance after transaction
     "reference_number": str,      # Transaction reference number
-    "status": str,                # Transaction status
-    "created_at": str            # Timestamp when record was created
+    "status": str,                # Transaction status ('Completed' or 'Pending')
+    "created_at": str             # Timestamp when record was created
 }
 ```
 
