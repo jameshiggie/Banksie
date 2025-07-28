@@ -22,10 +22,10 @@ def perform_analysis(wrapper: RunContextWrapper[StateContext], code: str) -> str
     - The code must print out the final conclusion of the analysis and any data the user needs to see using f-string.
     - DO NOT include import statements in your code - pandas is available as 'pd' and numpy as 'np'
 
-    args:
+    Args:
         code: python code to be executed to perform the analysis and achieve the user's goal.
         
-    returns:
+    Returns:
         str: final conclusion of the analysis and any data the user needs to see.
     """
     

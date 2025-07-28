@@ -7,6 +7,7 @@ from typing import Any, Dict, List
 
 import bcrypt
 from ai_agents.banksie.banksie import BanksieAgent
+from ai_agents.utils.log import setup_logging
 from ai_agents.utils.state import StateContext
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, WebSocket
@@ -17,9 +18,8 @@ from jose import JWTError, jwt
 from openai.types.responses import ResponseTextDeltaEvent
 from pydantic import BaseModel
 
-# Configure logging first (before loading environment variables)
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Configure logging using centralized utility
+logger = setup_logging(level=logging.INFO)
 
 # Load environment variables from local .env file with priority order
 # This ensures local .env files take precedence over global environment variables
@@ -105,6 +105,16 @@ class ChatResponse(BaseModel):
 
 # Database initialization
 def init_database():
+    """
+    Initialize the SQLite database with required tables and sample data.
+    
+    Creates users, transactions, and chat_messages tables if they don't exist.
+    Populates the transactions table with sample business transaction data if empty
+    or if FORCE_DB_REFRESH is enabled. Creates a default admin user if no users exist.
+    
+    The sample data includes realistic business transactions with suppliers, customers,
+    and service providers across multiple categories and time periods.
+    """
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     
@@ -403,6 +413,18 @@ def get_transaction_data() -> List[Dict[str, Any]]:
 
 # Authentication functions
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Dict[str, Any]:
+    """
+    Verify and decode a JWT authentication token.
+    
+    Args:
+        credentials: HTTP Bearer token credentials from the request header
+        
+    Returns:
+        Dict containing user information (id and username) from the token
+        
+    Raises:
+        HTTPException: If token is invalid, expired, or malformed
+    """
     try:
         logger.debug(f"Verifying token: {credentials.credentials[:20]}...")
         payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=["HS256"])
@@ -426,16 +448,36 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) 
 # WebSocket connection manager
 class ConnectionManager:
     def __init__(self):
+        """Initialize the WebSocket connection manager with an empty connections list."""
         self.active_connections: List[WebSocket] = []
     
     async def connect(self, websocket: WebSocket):
+        """
+        Accept a new WebSocket connection and add it to active connections.
+        
+        Args:
+            websocket: The WebSocket connection to accept and manage
+        """
         await websocket.accept()
         self.active_connections.append(websocket)
     
     def disconnect(self, websocket: WebSocket):
+        """
+        Remove a WebSocket connection from active connections.
+        
+        Args:
+            websocket: The WebSocket connection to remove
+        """
         self.active_connections.remove(websocket)
     
     async def send_personal_message(self, message: str, websocket: WebSocket):
+        """
+        Send a text message to a specific WebSocket connection.
+        
+        Args:
+            message: The text message to send
+            websocket: The target WebSocket connection
+        """
         await websocket.send_text(message)
 
 manager = ConnectionManager()
@@ -443,6 +485,18 @@ manager = ConnectionManager()
 # API Routes
 @app.post("/api/login")
 async def login(user: UserLogin):
+    """
+    Authenticate a user and return a JWT token.
+    
+    Args:
+        user: UserLogin model containing username and password
+        
+    Returns:
+        Dict containing JWT token and user information
+        
+    Raises:
+        HTTPException: If credentials are invalid (401)
+    """
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     
@@ -466,6 +520,18 @@ async def login(user: UserLogin):
 
 @app.post("/api/register")
 async def register(user: UserRegister):
+    """
+    Register a new user account.
+    
+    Args:
+        user: UserRegister model containing username, password, and email
+        
+    Returns:
+        Dict containing JWT token and user information for the newly created user
+        
+    Raises:
+        HTTPException: If username or email already exists (400)
+    """
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     
@@ -500,6 +566,18 @@ async def register(user: UserRegister):
 
 @app.get("/api/data")
 async def get_data(current_user: Dict[str, Any] = Depends(verify_token)):
+    """
+    Retrieve all transaction data for authenticated users.
+    
+    Args:
+        current_user: Authenticated user information from JWT token
+        
+    Returns:
+        List of transaction dictionaries ordered by date (newest first)
+        
+    Raises:
+        HTTPException: If database error occurs (500)
+    """
     try:
         logger.info(f"Data request from user: {current_user.get('username', 'unknown')}")
         
@@ -538,6 +616,15 @@ async def get_data(current_user: Dict[str, Any] = Depends(verify_token)):
 
 @app.get("/api/chat/history")
 async def get_chat_history(current_user: Dict[str, Any] = Depends(verify_token)):
+    """
+    Retrieve chat message history for the authenticated user.
+    
+    Args:
+        current_user: Authenticated user information from JWT token
+        
+    Returns:
+        List of chat message dictionaries ordered by creation time (oldest first)
+    """
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     
@@ -562,7 +649,33 @@ async def get_chat_history(current_user: Dict[str, Any] = Depends(verify_token))
 
 @app.post("/api/chat/stream")
 async def chat_stream(chat_message: ChatMessage, current_user: Dict[str, Any] = Depends(verify_token)):
-    """Stream chat response"""
+    """
+    Stream AI chat responses in real-time using Server-Sent Events (SSE).
+    
+    This endpoint processes user chat messages through the BanksieAgent AI system
+    and streams the response back in chunks as it's generated. The complete conversation
+    is saved to the database for future reference.
+    
+    Args:
+        chat_message: ChatMessage model containing the user's message text
+        current_user: Authenticated user information from JWT token
+        
+    Returns:
+        StreamingResponse: Server-Sent Events stream containing:
+            - JSON chunks with partial AI responses as they're generated
+            - Progress indicators and completion status
+            - Error messages if processing fails
+            - Final message metadata (ID, timestamp) when complete
+            
+    Response Format:
+        - Each chunk: {"chunk": "text", "done": false}
+        - Completion: {"done": true, "message_id": int, "created_at": "ISO timestamp"}
+        - Error: {"error": true, "message": "error description"}
+        
+    Raises:
+        Streams error responses rather than raising exceptions to maintain
+        the SSE connection for proper client-side error handling.
+    """
     async def generate_stream():
         response_parts = []
         

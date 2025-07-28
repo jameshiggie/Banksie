@@ -1,15 +1,11 @@
-
-import logging
-
 from agents import Agent, Runner
-
 from ai_agents.banksie.ai_agents.analyst import analyst_agent
 from ai_agents.banksie.hooks import BanksieRunHook
+from ai_agents.utils.log import get_logger
 from ai_agents.utils.state import StateContext
 
-# Optional: configure logging
-logger = logging.getLogger("banksie")
-logging.basicConfig(level=logging.INFO)
+# Get configured logger for Banksie
+logger = get_logger("banksie")
 
 class BanksieAgent(Agent):
     """
@@ -18,7 +14,10 @@ class BanksieAgent(Agent):
 
     def __init__(self):
         super().__init__(name="banksie")
-        self.logger = logging.getLogger("banksie")
+        self.logger = logger  # Use the configured logger
+        
+        # Debug message to verify logging is working in VS Code
+        self.logger.info("[Banksie] BanksieAgent initialized successfully - logging is working!")
         
     async def run(self, state_context: StateContext, prompt: str):
         output = None
