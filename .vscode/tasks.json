@@ -7,7 +7,7 @@
       "command": "pip",
       "args": ["install", "-r", "requirements.txt"],
       "options": {
-        "cwd": "${workspaceFolder}/python-backend"
+        "cwd": "${workspaceFolder}/app"
       },
       "group": "build",
       "presentation": {
@@ -38,10 +38,10 @@
       "command": "python",
       "args": ["start.py"],
       "options": {
-        "cwd": "${workspaceFolder}/python-backend",
+        "cwd": "${workspaceFolder}/app",
         "env": {
           "DEBUG": "True",
-          "PYTHONPATH": "${workspaceFolder}/python-backend"
+          "PYTHONPATH": "${workspaceFolder}/app"
         }
       },
       "group": {
@@ -62,7 +62,6 @@
       "command": "docker-compose",
       "args": [
         "-f", "docker-compose.python.yml",
-        "--profile", "dev",
         "up", "--build", "-d", "ai-chatbot-python-dev"
       ],
       "group": "build",
@@ -80,8 +79,7 @@
       "command": "docker-compose",
       "args": [
         "-f", "docker-compose.python.yml",
-        "--profile", "dev",
-        "up", "--build", "-d"
+        "up", "--build", "-d", "ai-chatbot-python-dev"
       ],
       "options": {
         "env": {
@@ -124,8 +122,7 @@
       "command": "docker-compose",
       "args": [
         "-f", "docker-compose.python.yml",
-        "--profile", "dev",
-        "up", "--build"
+        "up", "--build", "ai-chatbot-python-dev", "ai-chatbot-frontend-dev"
       ],
       "group": "build",
       "presentation": {
@@ -176,8 +173,7 @@
       "command": "docker-compose",
       "args": [
         "-f", "docker-compose.python.yml",
-        "--profile", "production",
-        "build"
+        "build", "ai-chatbot-python"
       ],
       "group": "build",
       "presentation": {
@@ -194,7 +190,7 @@
       "command": "python",
       "args": ["-m", "pytest", "-v"],
       "options": {
-        "cwd": "${workspaceFolder}/python-backend"
+        "cwd": "${workspaceFolder}/app"
       },
       "group": "test",
       "presentation": {
@@ -211,7 +207,7 @@
       "command": "python",
       "args": ["-m", "black", "."],
       "options": {
-        "cwd": "${workspaceFolder}/python-backend"
+        "cwd": "${workspaceFolder}/app"
       },
       "group": "build",
       "presentation": {

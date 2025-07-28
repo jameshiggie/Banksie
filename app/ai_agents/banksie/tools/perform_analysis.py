@@ -1,24 +1,12 @@
-from agents import function_tool, RunContextWrapper
-from ai_agents.utils.state import StateContext
 import io
 import re
-from contextlib import redirect_stdout, redirect_stderr
-from datetime import datetime, date, timedelta
+from contextlib import redirect_stderr, redirect_stdout
+from datetime import date, datetime, timedelta
+import numpy as np
+import pandas as pd
+from agents import RunContextWrapper, function_tool
+from ai_agents.utils.state import StateContext
 
-# Optional imports for data analysis
-try:
-    import pandas as pd
-    PANDAS_AVAILABLE = True
-except ImportError:
-    pd = None
-    PANDAS_AVAILABLE = False
-
-try:
-    import numpy as np  # type: ignore
-    NUMPY_AVAILABLE = True
-except ImportError:
-    np = None
-    NUMPY_AVAILABLE = False
 
 @function_tool
 def perform_analysis(wrapper: RunContextWrapper[StateContext], code: str) -> str:
@@ -32,11 +20,12 @@ def perform_analysis(wrapper: RunContextWrapper[StateContext], code: str) -> str
         - Pandas and Numpy are already imported so you can use them.
     - The code must print out the final conclusion of the analysis and any data the user needs to see using f-string.
     - DO NOT include import statements in your code - pandas is available as 'pd' and numpy as 'np'
+    - DO NOT  use triple quotes in your code
 
-    args:
+    Args:
         code: python code to be executed to perform the analysis and achieve the user's goal.
         
-    returns:
+    Returns:
         str: final conclusion of the analysis and any data the user needs to see.
     """
     
@@ -83,20 +72,9 @@ def perform_analysis(wrapper: RunContextWrapper[StateContext], code: str) -> str
         'datetime': datetime,
         'date': date,
         'timedelta': timedelta,
+        'pd': pd,
+        'np': np,
     }
-    
-    # Add optional libraries if available
-    if PANDAS_AVAILABLE and pd is not None:
-        restricted_globals['pd'] = pd
-        restricted_globals['pandas'] = pd
-    
-    if NUMPY_AVAILABLE and np is not None:
-        restricted_globals['np'] = np
-        restricted_globals['numpy'] = np
-    
-    # Add library availability info for debugging
-    restricted_globals['PANDAS_AVAILABLE'] = PANDAS_AVAILABLE
-    restricted_globals['NUMPY_AVAILABLE'] = NUMPY_AVAILABLE
     
     # Capture stdout and stderr
     stdout_capture = io.StringIO()
@@ -122,14 +100,6 @@ def perform_analysis(wrapper: RunContextWrapper[StateContext], code: str) -> str
         result = f"Error executing code: {str(e)}\n"
         if error_output:
             result += f"Additional errors: {error_output}\n"
-            
-        # Add helpful debugging info
-        result += f"\nDebugging info:\n"
-        result += f"- Pandas available: {PANDAS_AVAILABLE}\n"
-        result += f"- Numpy available: {NUMPY_AVAILABLE}\n"
-        result += f"- Transaction data type: {type(data)}\n"
-        result += f"- Transaction data length: {len(data) if hasattr(data, '__len__') else 'N/A'}\n"
-        result += f"- Available variables: {[k for k in restricted_globals.keys() if not k.startswith('__')]}\n"
     
     return result
 

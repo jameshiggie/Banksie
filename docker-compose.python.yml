@@ -4,7 +4,7 @@ services:
   # Production Python Backend
   ai-chatbot-python:
     build:
-      context: ./python-backend
+      context: ./app
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
@@ -31,7 +31,7 @@ services:
   # Development Python Backend with Virtual Environment and Debug Support
   ai-chatbot-python-dev:
     build:
-      context: ./python-backend
+      context: ./app
       dockerfile: Dockerfile.dev
     ports:
       - "8000:8000"  # FastAPI server
@@ -50,7 +50,7 @@ services:
       - PYTHONDONTWRITEBYTECODE=1
       - FORCE_DB_REFRESH=${FORCE_DB_REFRESH:-false}
     volumes:
-      - ./python-backend:/app
+      - ./app:/app
       - ./data:/app/data
       - python-venv:/opt/venv  # Persist virtual environment
     restart: unless-stopped
