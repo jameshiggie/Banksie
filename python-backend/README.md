@@ -2,7 +2,26 @@
 
 ## Overview
 
-Banksie is a business banking AI assistant built with **FastAPI** and the **OpenAI Agents SDK**. It provides intelligent financial analysis capabilities by allowing users to interact with their transaction data through natural language queries that get converted into executable Python code.
+Banksie is a business banking AI assistant built with **FastAPI** and the **OpenAI Agents SDK**. It provides intelligent 
+financial analysis capabilities by allowing users to interact with their transaction data through natural language queries.
+Banksie is a simple ReAct/CodeAct Manus like agent using the openai agents-sdk framework powered by gpt4.1 API calls. 
+The backend is written in python and uses FastAPI to stream to the front end. 
+Frontend is Node.js, both front and back ends pull data that is stored in the same SQLite database. 
+The app is containerized within docker and set up to run in debug mode in vscode for development. 
+
+[![Watch the video](https://img.youtube.com/vi/jE9jUqLCUuc/hqdefault.jpg)](https://www.youtube.com/watch?v=jE9jUqLCUuc)
+
+### Usage Examples
+
+```
+"What are my top 5 expense categories this month?"
+"Show me the variation, median and sum of sales in June 2025 and June 2024"
+"give me some insights on what to focus on to improve"
+"What's my average monthly revenue?"
+"Which suppliers am I spending the most money with?"
+"Calculate my total revenue for each month"
+"Show me all transactions over $30,000 for aug 2024"
+```
 
 ## Architecture
 
@@ -35,26 +54,7 @@ transactions (id, transaction_date, description, category,
 chat_messages (id, user_id, message, response, created_at)
 ```
 
-## Technical Implementation
-
 ### **Agent Architecture**
-
-```python
-# Agent Flow
-BanksieAgent -> Analyst Agent -> perform_analysis Tool -> Python Execution
-```
-
-#### **BanksieAgent** (`ai_agents/banksie/banksie.py`)
-```python
-class BanksieAgent(Agent):
-    async def run(self, state_context: StateContext, prompt: str):
-        return Runner.run_streamed(
-            analyst_agent(),
-            context=state_context,
-            input=prompt,
-            hooks=BanksieRunHook(),
-        )
-```
 
 #### **Analyst Agent** (`ai_agents/banksie/ai_agents/analyst.py`)
 - **Model**: GPT-4.1 for advanced reasoning
@@ -62,15 +62,6 @@ class BanksieAgent(Agent):
 - **Tool**: Single `perform_analysis` tool for code execution
 - **Context**: Access to user's transaction data via StateContext
 
-#### **Analysis Tool** (`ai_agents/banksie/tools/perform_analysis.py`)
-```python
-@function_tool
-def perform_analysis(wrapper: RunContextWrapper[StateContext], code: str) -> str:
-    """Execute Python code on transaction data with pandas/numpy"""
-    # Restricted execution environment with security controls
-    # Access to transaction_data, pandas (pd), numpy (np)
-    # Returns formatted analysis results
-```
 
 ### **Data Flow**
 
@@ -299,49 +290,13 @@ PYTHONPATH=/app
 PYTHONUNBUFFERED=1
 ```
 
-## OpenAI Agents SDK Tracing
+## OpenAI Agents SDK Tracing for agent flow logs
 OpenAI Agents SDK includes built-in tracing to log everything the agent does
  - LLM calls
  - Tool usage
  - Agent handoffs. 
  
 Traces show up automatically in the OpenAI Platform so you can step through execution and debug issues.
-
-## Usage Examples
-
-### **Financial Analysis Queries**
-
-```
-"What are my top 5 expense categories this month?"
-"Show me the variation, median and sum of sales in June 2025 and June 2024"
-"give me some insights on what to focus on to improve"
-"What's my average monthly revenue?"
-"Which suppliers am I spending the most money with?"
-"Calculate my total revenue for each month"
-"Show me all transactions over $30,000 for aug 2024"
-```
-
-## Dependencies
-
-### **Core Libraries**
-- `fastapi>=0.110.0` - Web framework
-- `openai-agents==0.2.3` - OpenAI Agents SDK
-- `openai==1.97.1` - OpenAI API client
-- `uvicorn[standard]==0.35.0` - ASGI server
-- `pandas>=2.0.0` - Data analysis
-- `numpy>=1.24.0` - Numerical computing
-
-### **Security & Auth**
-- `python-jose[cryptography]` - JWT token handling
-- `bcrypt` - Password hashing
-- `passlib[bcrypt]` - Password utilities
-
-### **Development Tools**
-- `debugpy` - VS Code debugging
-- `pytest` - Testing framework
-- `black` - Code formatting
-- `mypy` - Type checking
-
 
 ## Future Enhancements
 
