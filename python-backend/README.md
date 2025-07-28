@@ -4,7 +4,7 @@
 
 Banksie is a business banking AI assistant built with **FastAPI** and the **OpenAI Agents SDK**. It provides intelligent 
 financial analysis capabilities by allowing users to interact with their transaction data through natural language queries.
-Banksie is a simple ReAct/CodeAct Manus like agent using the openai agents-sdk framework powered by gpt4.1 API calls. 
+Banksie is a simple ReAct/CodeAct Manus like agent using the openai agents-sdk framework powered by gpt-4.1 API calls. 
 The backend is written in python and uses FastAPI to stream to the front end. 
 Frontend is Node.js, both front and back ends pull data that is stored in the same SQLite database. 
 The app is containerized within docker and set up to run in debug mode in vscode for development. 

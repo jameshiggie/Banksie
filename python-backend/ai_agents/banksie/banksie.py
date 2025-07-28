@@ -25,7 +25,7 @@ class BanksieAgent(Agent):
         
         try:
             self.logger.info(f"[Banksie] Received prompt: {prompt}")
-            
+            # Agents SDK flow
             output = Runner.run_streamed(
                     analyst_agent(),
                     context=state_context,
