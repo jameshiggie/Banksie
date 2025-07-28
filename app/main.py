@@ -27,15 +27,15 @@ def load_local_env():
     """
     Load environment variables from local .env file with multiple fallback locations.
     Priority order:
-    1. .env in project root (one level up from python-backend/)
-    2. .env in python-backend/ directory
+    1. .env in project root (one level up from app/)
+    2. .env in app/ directory
     3. .env in current working directory
     """
     current_file_dir = os.path.dirname(os.path.abspath(__file__))
     
     # Try different .env file locations in priority order
     env_locations = [
-        # Project root (one level up from python-backend/)
+        # Project root (one level up from app/)
         os.path.join(os.path.dirname(current_file_dir), '.env'),
         # python-backend directory
         os.path.join(current_file_dir, '.env'),

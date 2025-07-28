@@ -2,7 +2,6 @@ import io
 import re
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import date, datetime, timedelta
-
 import numpy as np
 import pandas as pd
 from agents import RunContextWrapper, function_tool
@@ -21,6 +20,7 @@ def perform_analysis(wrapper: RunContextWrapper[StateContext], code: str) -> str
         - Pandas and Numpy are already imported so you can use them.
     - The code must print out the final conclusion of the analysis and any data the user needs to see using f-string.
     - DO NOT include import statements in your code - pandas is available as 'pd' and numpy as 'np'
+    - DO NOT  use triple quotes in your code
 
     Args:
         code: python code to be executed to perform the analysis and achieve the user's goal.
@@ -66,16 +66,14 @@ def perform_analysis(wrapper: RunContextWrapper[StateContext], code: str) -> str
             'filter': filter,
             'any': any,
             'all': all,
-            'pd': pd,
-            'np': np,
-            'pandas': pd,
-            'numpy': np,
         },
         'data': data,
         'transaction_data': data,  # Provide both names for convenience
         'datetime': datetime,
         'date': date,
         'timedelta': timedelta,
+        'pd': pd,
+        'np': np,
     }
     
     # Capture stdout and stderr

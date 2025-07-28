@@ -1,4 +1,4 @@
-# Banksie AI Financial Analysis Backend
+# Banksie GenAI Financial Analysis Backend
 
 ## Overview
 
@@ -103,13 +103,13 @@ chat_messages (id, user_id, message, response, created_at)
 
 1. **Clone and Setup**
    ```bash
-   cd python-backend
+   cd app
    pip install -r requirements.txt
    ```
 
 2. **Environment Configuration**
    ```bash
-   # Create .env file in project root or python-backend/
+   # Create .env file in project root or app/
    echo "OPENAI_API_KEY=sk-proj-your-actual-key-here" > .env
    echo "JWT_SECRET=your-secret-key" >> .env
    echo "DEBUG=true" >> .env
@@ -185,7 +185,7 @@ Create or update `.vscode/launch.json` in your project root:
             },
             "pathMappings": [
                 {
-                    "localRoot": "${workspaceFolder}/python-backend",
+                    "localRoot": "${workspaceFolder}/app",
                     "remoteRoot": "/app"
                 }
             ],
@@ -197,14 +197,14 @@ Create or update `.vscode/launch.json` in your project root:
             "name": "Docker: Launch & Debug",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/python-backend/start-debug.py",
+            "program": "${workspaceFolder}/app/start-debug.py",
             "console": "integratedTerminal",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/python-backend",
+                "PYTHONPATH": "${workspaceFolder}/app",
                 "DEBUG": "true",
                 "DEBUG_WAIT": "true"
             },
-            "cwd": "${workspaceFolder}/python-backend"
+            "cwd": "${workspaceFolder}/app"
         }
     ]
 }
@@ -218,7 +218,7 @@ version: '3.8'
 services:
   banksie-backend:
     build:
-      context: ./python-backend
+      context: ./app
       dockerfile: Dockerfile.dev
     ports:
       - "8000:8000"  # FastAPI server
@@ -230,7 +230,7 @@ services:
       - DEBUG_WAIT=false
       - PYTHONPATH=/app
     volumes:
-      - ./python-backend:/app
+      - ./app:/app
       - /app/__pycache__  # Exclude cache
     command: python start-debug.py
     stdin_open: true
