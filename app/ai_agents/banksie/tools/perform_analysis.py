@@ -16,14 +16,14 @@ def perform_analysis(wrapper: RunContextWrapper[StateContext], code: str) -> str
     Guidelines:
     - Its run in a restricted environment
     - You can only use the libraries and variables that are already imported.
-        - The code must use the variable `transaction_data` as tis source of transaction data.
+        - The code must use the variable `transaction_data` as its source of transaction data.
         - Pandas and Numpy are already imported so you can use them.
     - The code must print out the final conclusion of the analysis and any data the user needs to see using f-string.
     - DO NOT include import statements in your code - pandas is available as 'pd' and numpy as 'np'
     - DO NOT  use triple quotes in your code
 
     Args:
-        code: python code to be executed to perform the analysis and achieve the user's goal.
+        Code: Python code to be executed to perform the analysis and achieve the user's goal.
         
     Returns:
         str: final conclusion of the analysis and any data the user needs to see.
