@@ -4,7 +4,7 @@
 
 Banksie is a business banking AI assistant built with **FastAPI** and the **OpenAI Agents SDK**. It provides intelligent 
 financial analysis capabilities by allowing users to interact with their transaction data through natural language queries.
-Banksie is a simple ReAct/CodeAct Manus like agent using the openai agents-sdk framework powered by gpt-4.1 API calls. 
+Banksie is a simple ReAct/CodeAct Manus like agent using the openai agents-sdk framework powered by GPT-4.1 API calls. 
 The backend is written in Python and uses FastAPI to stream to the front end. 
 The app is containerized within Docker and set up to run in debug mode in VS Code for development. 
 
@@ -26,7 +26,7 @@ The app is containerized within Docker and set up to run in debug mode in VS Cod
 
 - 🔐 **User Authentication** - Secure login/registration system with JWT tokens
 - 💬 **AI Chat Interface** - Interactive chatbot with **real-time streaming responses**  
-- 🤖 **AI Integration** - OpenAI GPT-4 with Agents SDK for advanced capabilities
+- 🤖 **AI Integration** - OpenAI GPT-4.1 with Agents SDK for advanced capabilities
 - 📊 **Data Management** - Real-time database table view with search and filtering
 - 🎨 **Modern UI** - Commonwealth Bank inspired design with yellow and black
 - 🐳 **Docker Ready** - Complete development and production containers
@@ -38,10 +38,45 @@ The app is containerized within Docker and set up to run in debug mode in VS Cod
 
 - **Frontend**: React 18 with streaming support  
 - **Backend**: Python FastAPI with OpenAI Agents SDK integration
-- **AI**: Advanced OpenAI GPT-4 with Agents SDK
+- **AI**: Advanced OpenAI GPT-4.1 with Agents SDK
 - **Database**: SQLite for lightweight, embedded storage
 - **Port**: 8000 (backend), 3000 (frontend dev)
 
+### **Agent Architecture**
+
+#### **Data Flow**
+
+1. **User Query** → FastAPI `/api/chat/stream` endpoint
+2. **Authentication** → JWT token verification
+3. **Data Loading** → Fetch user's transaction data from SQLite
+4. **State Context** → Package data with user prompt
+5. **Agent Execution** → BanksieAgent processes request
+6. **Code Generation** → AI generates Python analysis code
+7. **Execution** → Code runs in restricted environment with transaction data
+8. **Streaming Response** → Results streamed back to frontend
+9. **Database Storage** → Conversation saved to chat history
+
+#### **Analyst Agent** (`ai_agents/banksie/ai_agents/analyst.py`)
+- **Model**: GPT-4.1 for advanced reasoning
+- **Instructions**: Financial analysis specialist with banking terminology
+- **Tool**: Single `perform_analysis` tool for code execution
+- **Context**: Access to user's transaction data via StateContext
+
+#### **Future Enhancements**
+- **Previous Message** add previous messages in the chat to the messages 
+- **RAG/doc agent** add rag and doc agent to add domain knowledge to the core agents based of users business docs
+- **Multi-agent Orchestration**: Specialized agents  for different financial domains and/or tasks
+- **More tools for tasks**
+- **Advanced Visualizations**: Chart and graph generation capabilities  
+- **Export Functionality**: PDF reports and Excel spreadsheet generation
+- **Scheduled Analysis**: Automated periodic financial reports before user asks for it
+- **Integration APIs**: Connect with accounting software and bank APIs or via MPC tool additions
+- **Advanced Security**: Rate limiting, audit logging, and encryption at rest
+- **Performance Optimization**: Caching layer and query optimization
+- **Mobile Support**: Mobile-optimized API responses and push notifications
+- **Dynamic UI for large wide tables**
+
+This implementation provides a solid foundation for AI-powered business banking analysis with room for extensive customization and feature expansion. 
 
 ## Quick Start
 
@@ -144,26 +179,66 @@ Access via `Ctrl+Shift+P` → "Tasks: Run Task":
 
 ```
 Banksie/
-├── app/              # 🐍 Python FastAPI backend
-│   ├── main.py                 # FastAPI app with OpenAI Agents SDK
-│   ├── start.py                # Standard startup script
-│   ├── start-debug.py          # Debug startup with debugpy
-│   ├── requirements.txt        # Production dependencies
-│   ├── requirements.dev.txt    # Development dependencies
-│   ├── Dockerfile              # Production container
-│   ├── Dockerfile.dev          # Development container
-│   └── ai_agents/              # OpenAI Agents implementation
-├── client/                     # ⚛️ React frontend
-│   ├── src/components/         # React components with streaming
-│   ├── src/setupProxy.js      # Proxy configuration
-│   ├── Dockerfile             # Production container  
-│   ├── Dockerfile.dev         # Development container  
-│   └── package.json           # Frontend dependencies
-├── .vscode/                    # VS Code configuration
-│   ├── launch.json            # Debug configurations
-│   └── tasks.json             # Development tasks
-├── docker-compose.python.yml   # 🐍 Python Docker setup
-└── README.md
+├── app/                          # 🐍 Python FastAPI backend
+│   ├── main.py                   # FastAPI app with OpenAI Agents SDK
+│   ├── start.py                  # Standard startup script
+│   ├── start-debug.py            # Debug startup with debugpy
+│   ├── requirements.txt          # Production dependencies
+│   ├── requirements.dev.txt      # Development dependencies
+│   ├── Dockerfile                # Production container
+│   ├── Dockerfile.dev            # Development container
+│   ├── database.sqlite           # SQLite database
+│   ├── README.md                 # Backend documentation
+│   ├── data/                     # Data directory (empty)
+│   └── ai_agents/                # OpenAI Agents implementation
+│       ├── utils/               # Utility modules
+│       │   ├── log.py           # Logging utilities
+│       │   └── state.py         # State management
+│       └── banksie/             # Main Banksie agent
+│           ├── banksie.py       # Core agent implementation
+│           ├── hooks.py         # Agent hooks
+│           ├── ai_agents/       # Agent definitions
+│           │   ├── analyst.py   # Financial analyst agent
+│           │   ├── biblioteca.py # Library agent (empty)
+│           │   └── system_message/
+│           │       └── analyst.md # Analyst system prompt
+│           └── tools/           # Agent tools
+│               └── perform_analysis.py # Analysis tool
+├── client/                      # ⚛️ React frontend
+│   ├── src/
+│   │   ├── components/          # React components
+│   │   │   ├── ChatPanel.js     # Chat interface with streaming
+│   │   │   ├── ChatPanel.css    # Chat styling
+│   │   │   ├── Dashboard.js     # Main dashboard
+│   │   │   ├── Dashboard.css    # Dashboard styling
+│   │   │   ├── DataTable.js     # Data table component
+│   │   │   ├── DataTable.css    # Table styling
+│   │   │   ├── Header.js        # Navigation header
+│   │   │   ├── Header.css       # Header styling
+│   │   │   ├── Login.js         # Login component
+│   │   │   └── Login.css        # Login styling
+│   │   ├── App.js               # Main React app
+│   │   ├── App.css              # Global app styles
+│   │   ├── index.js             # React entry point
+│   │   ├── index.css            # Base styles
+│   │   └── setupProxy.js        # Development proxy config
+│   ├── public/                  # Static assets
+│   │   ├── index.html          # HTML template
+│   │   ├── manifest.json       # PWA manifest
+│   │   └── favicon.ico         # Site icon
+│   ├── Dockerfile.dev           # Development container
+│   ├── package.json            # Frontend dependencies
+│   └── package-lock.json       # Dependency lock file
+├── data/                        # 📊 Database storage
+│   └── database.sqlite          # Main SQLite database
+├── .vscode/                     # VS Code configuration
+│   ├── launch.json             # Debug configurations
+│   ├── tasks.json              # Development tasks
+│   └── settings.json           # Editor settings
+├── docker-compose.python.yml    # 🐳 Docker development setup
+├── .gitignore                   # Git ignore rules
+├── LICENSE                      # MIT license
+└── README.md                    # This documentation
 ```
 
 ## 🤖 **AI Integration**
