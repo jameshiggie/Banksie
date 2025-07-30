@@ -1,4 +1,4 @@
-# Banksie GenAI Financial Analysis Backend
+# Banksie GenAI Banking AI assistant
 
 ## Overview
 
