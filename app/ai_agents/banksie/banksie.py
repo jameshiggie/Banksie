@@ -16,9 +16,6 @@ class BanksieAgent(Agent):
         super().__init__(name="banksie")
         self.logger = logger  # Use the configured logger
         
-        # Debug message to verify logging is working in VS Code
-        self.logger.info("[Banksie] BanksieAgent initialized successfully - logging is working!")
-        
     async def run(self, state_context: StateContext, prompt: str):
         output = None
         
